@@ -1,0 +1,155 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Senox Pre-Made",
+   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+   LoadingTitle = "Loading...",
+   LoadingSubtitle = "by Senox",
+   ShowText = "SP-M", -- for mobile users to unhide rayfield, change if you'd like
+   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+
+   ToggleUIKeybind = "F3", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
+
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "Big Hub"
+   },
+
+   Discord = {
+      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+
+   KeySystem = true, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Your Key",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Senox_Rivals"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+Rayfield:Notify({
+   Title = "Senox Pre-Made Has been Started and Connected to Game",
+   Content = "Senox Pre-Made Has been Started and Connected to Game",
+   Duration = 7,
+   Image = 4483362458,
+})
+
+local Tab = Window:CreateTab("Aim", 4483362458) -- Title, Image
+
+local Section = Tab:CreateSection("Aimbot")
+
+local Button = Tab:CreateButton({
+   Name = "Button Example",
+   Callback = function()
+       local Camera = workspace.CurrentCamera
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local Holding = false
+
+_G.AimbotEnabled = true
+_G.TeamCheck = false -- If set to true then the script would only lock your aim at enemy team members.
+_G.AimPart = "Head" -- Where the aimbot script would lock at.
+_G.Sensitivity = 0 -- How many seconds it takes for the aimbot script to officially lock onto the target's aimpart.
+
+_G.CircleSides = 64 -- How many sides the FOV circle would have.
+_G.CircleColor = Color3.fromRGB(255, 255, 255) -- (RGB) Color that the FOV circle would appear as.
+_G.CircleTransparency = 0.7 -- Transparency of the circle.
+_G.CircleRadius = 80 -- The radius of the circle / FOV.
+_G.CircleFilled = false -- Determines whether or not the circle is filled.
+_G.CircleVisible = true -- Determines whether or not the circle is visible.
+_G.CircleThickness = 0 -- The thickness of the circle.
+
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Filled = _G.CircleFilled
+FOVCircle.Color = _G.CircleColor
+FOVCircle.Visible = _G.CircleVisible
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Transparency = _G.CircleTransparency
+FOVCircle.NumSides = _G.CircleSides
+FOVCircle.Thickness = _G.CircleThickness
+
+local function GetClosestPlayer()
+	local MaximumDistance = _G.CircleRadius
+	local Target = nil
+
+	for _, v in next, Players:GetPlayers() do
+		if v.Name ~= LocalPlayer.Name then
+			if _G.TeamCheck == true then
+				if v.Team ~= LocalPlayer.Team then
+					if v.Character ~= nil then
+						if v.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+							if v.Character:FindFirstChild("Humanoid") ~= nil and v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+								local ScreenPoint = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+								local VectorDistance = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(ScreenPoint.X, ScreenPoint.Y)).Magnitude
+								
+								if VectorDistance < MaximumDistance then
+									Target = v
+								end
+							end
+						end
+					end
+				end
+			else
+				if v.Character ~= nil then
+					if v.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+						if v.Character:FindFirstChild("Humanoid") ~= nil and v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+							local ScreenPoint = Camera:WorldToScreenPoint(v.Character:WaitForChild("HumanoidRootPart", math.huge).Position)
+							local VectorDistance = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(ScreenPoint.X, ScreenPoint.Y)).Magnitude
+							
+							if VectorDistance < MaximumDistance then
+								Target = v
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return Target
+end
+
+UserInputService.InputBegan:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(Input)
+    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = false
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    FOVCircle.Position = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
+    FOVCircle.Radius = _G.CircleRadius
+    FOVCircle.Filled = _G.CircleFilled
+    FOVCircle.Color = _G.CircleColor
+    FOVCircle.Visible = _G.CircleVisible
+    FOVCircle.Radius = _G.CircleRadius
+    FOVCircle.Transparency = _G.CircleTransparency
+    FOVCircle.NumSides = _G.CircleSides
+    FOVCircle.Thickness = _G.CircleThickness
+
+    if Holding == true and _G.AimbotEnabled == true then
+        TweenService:Create(Camera, TweenInfo.new(_G.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(Camera.CFrame.Position, GetClosestPlayer().Character[_G.AimPart].Position)}):Play()
+    end
+end)
+   end,
+})
